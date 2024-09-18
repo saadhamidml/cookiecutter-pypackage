@@ -1,15 +1,23 @@
 #!/usr/bin/env python
 import pathlib
+import subprocess
+
+def git_init():
+    subprocess.run(["git", "init"])
+
+def setup_venv():
+    subprocess.run(["pyenv", "local", "{{ cookiecutter.python_version }}"])
+    command = """poetry add
+        black -G dev
+        isort -G dev
+        flake8 -G dev
+        mypy -G dev
+        pytest -G dev"""
+    command = command.replace("\n        ", " ")
+    subprocess.run(command.split(" "))
+    subprocess.run("poetry", "install")
 
 
 if __name__ == '__main__':
-
-    if '{{ cookiecutter.create_author_file }}' != 'y':
-        pathlib.Path('AUTHORS.rst').unlink()
-        pathlib.Path('docs', 'authors.rst').unlink()
-
-    if 'no' in '{{ cookiecutter.command_line_interface|lower }}':
-        pathlib.Path('src', '{{ cookiecutter.project_slug }}', 'cli.py').unlink()
-        
-    if 'Not open source' == '{{ cookiecutter.open_source_license }}':
-        pathlib.Path('LICENSE').unlink()
+    git_init()
+    setup_venv()
